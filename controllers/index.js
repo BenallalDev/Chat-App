@@ -31,7 +31,7 @@ export const SendMessage = async(sender, reciever, message, room) => {
             senderUser.messages = messages2 
             await recieverUser.save()
             await senderUser.save()
-            return true
+            return senderUser.messages
         }
         else{
             messages.push({
@@ -56,10 +56,9 @@ export const SendMessage = async(sender, reciever, message, room) => {
             senderUser.messages = messages2
             await recieverUser.save()
             await senderUser.save()
-            return true
+            return senderUser.messages
         }
     } catch (error) {
-        console.log(error)
         return false
     }
 }

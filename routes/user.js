@@ -6,8 +6,6 @@ import User from "../models/user.js"
 import { v4 as uuidv4 } from 'uuid';
 
 const router = Router()
-
-
 router.get("/signin", async(req, res) => {
     try {
         const token = req.cookies[process.env.COOKIE_NAME]

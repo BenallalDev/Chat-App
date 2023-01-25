@@ -4,7 +4,10 @@ import { Server } from 'socket.io';
 import { createServer } from 'http';
 import mongoose from "mongoose";
 import user from "./routes/user.js"
+import cookieParser from "cookie-parser";
 import messages from "./routes/messages.js"
+
+
 dotenv.config()
 const PORT = process.env.PORT || 5050
 const app = express(); 
@@ -13,13 +16,11 @@ const io = new Server(server);
 
 
 app.use(express.json())
-app.use((req, res, next) => {
-    req.io = io;
-    next();
-});
-
+app.use(cookieParser())
 app.use("/api/auth/", user)
 app.use("/api/messages/", messages)
+
+
 io.on("connection", socket => { 
 	socket.on('join-room', room => {
 		socket.join(room)
