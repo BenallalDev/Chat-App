@@ -39,8 +39,8 @@ const Chat = () => {
                         </CardBody>
                         <CardFooter as={Flex} gap="1rem" alignItems="center">
                             <Textarea rows="2" resize="none" />
-                            <Button colorScheme="blue">
-                                <MdSend />
+                            <Button h="90%" w="60px" colorScheme="blue">
+                                <MdSend style={{fontSize:"1.5rem"}} />
                             </Button>
                         </CardFooter>
                     </Card> 

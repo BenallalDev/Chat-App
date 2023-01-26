@@ -17,7 +17,7 @@ const io = new Server(server);
 
 app.use(express.json())
 app.use(cookieParser())
-app.use("/api/auth/", user)
+app.use("/api/", user)
 app.use("/api/messages/", messages)
 
 

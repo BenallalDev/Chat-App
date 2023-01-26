@@ -12,9 +12,9 @@ const ChatLoading = () => {
         </CardHeader>
         <CardBody overflowY="scroll" as={Flex} flexDirection="column" gap="1rem">
             {
-                arr.map(e => (
-                    <>
-                    <Flex gap="1rem" alignItems="flex-start">
+                arr.map((e, index) => (
+                    <div key={index}>
+                    <Flex margin="1rem 0" gap="1rem" alignItems="flex-start">
                         <Skeleton w="40px" h="40px" borderRadius="50%" />
                         <Flex h="50px" w="100%" flexDirection="column" gap="1rem">
                             <Skeleton w="90%" minH="100%" p=".5rem" bg="#eff3f6" />
@@ -23,7 +23,7 @@ const ChatLoading = () => {
                     <Flex justifyContent="flex-end" gap="1rem" alignItems="flex-end" h="80px">
                         <Skeleton w="90%" minH="100%" p=".5rem" bg="#eff3f6" />
                     </Flex>
-                    </>
+                    </div>
                 ))
             }
         </CardBody>

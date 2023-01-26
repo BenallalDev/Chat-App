@@ -4,6 +4,9 @@ import App from './App';
 import { ChakraProvider, extendTheme } from "@chakra-ui/react"
 import { BrowserRouter as Router } from 'react-router-dom';
 import "@fontsource/poppins"
+import { Provider } from 'react-redux'
+import { store } from './redux/store'
+
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
@@ -25,11 +28,11 @@ const theme = extendTheme({
   }
 })
 root.render(
-  <Router>
-    <ChakraProvider theme={theme}>
-      <App />
-    </ChakraProvider>
-  </Router>
-  
-  
+  <Provider store={store}>
+    <Router>
+      <ChakraProvider theme={theme}>
+        <App />
+      </ChakraProvider>
+    </Router>
+  </Provider> 
 );

@@ -6,7 +6,7 @@ const MessagesLoading = () => {
   return (
     <Flex w="full" flexDirection="column">
         {
-            arr.map(e => <Skeleton w="3xl" my="1rem" h="76px" />)
+            arr.map((e, index) => <Skeleton key={index} w="3xl" my="1rem" h="76px" />)
         }
     </Flex>
   )

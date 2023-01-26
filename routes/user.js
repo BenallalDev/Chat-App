@@ -9,10 +9,14 @@ const router = Router()
 router.get("/signin", async(req, res) => {
     try {
         const token = req.cookies[process.env.COOKIE_NAME]
-        if(!token) res.status(401).json('Invalid token')
+        if(!token) {
+            res.status(401).json('Invalid token')
+            return;
+        }
         const decoded = jwt.verify(token, process.env.JWT_KEY)
         const user = await User.findById(decoded.id)
         res.status(200).json(user.username)
+        return;
     } catch(error) {
         res.status(501).json('Something went wrong')
     }
