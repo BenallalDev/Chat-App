@@ -68,7 +68,6 @@ router.post("/signup", async(req, res) => {
         await newUser.save()
         res.status(200).json({message: "Account created please check ur email for confirmation!", email: email})   
     } catch (error) {
-        console.log(error)
         res.status(500).json("Something went wrong!");
         return;
     }
@@ -197,4 +196,11 @@ router.get('/newfriend/:username', async(req, res) => {
     
 })
 
+router.get("/logout", (req, res) => {
+    try {
+        res.clearCookie(process.env.COOKIE_NAME).status(200).json("Logout")
+    } catch (error) {
+        res.status(500).json("Something went wrong")
+    }
+})
 export default router

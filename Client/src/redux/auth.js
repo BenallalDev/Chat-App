@@ -2,11 +2,11 @@ import { createSlice} from '@reduxjs/toolkit'
 import Swal from 'sweetalert2'
 
 
-import {signIn,verify,signUp, sendRecoveryLink, checkRecoveryLink, changePassword, CheckLogin} from "./actions/auth"
+import {signIn,verify,signUp, sendRecoveryLink, checkRecoveryLink, changePassword, CheckLogin, Logout} from "./actions/auth"
 
 
 const initialState = {
-  loggedIn: false,
+  loggedIn: true,
   username: null,
   loading: false,
 }
@@ -18,10 +18,8 @@ export const authSlice = createSlice({
         builder
         .addCase(CheckLogin.fulfilled, (state, action) => {
             state.loading = false
-            state.username = action.payload.username
-            state.role = action.payload.role
+            state.username = action.payload
             state.loggedIn = true
-            state.cart = action.payload.cart
         })
         .addCase(CheckLogin.rejected, (state, action) => {
             state.loading = false
@@ -131,6 +129,10 @@ export const authSlice = createSlice({
                 allowOutsideClick: false,
                 icon: 'error'
             })
+        })
+        .addCase(Logout.fulfilled, (state, action) => {
+            state.loggedIn = false
+            state.loading = false
         })
         
     }

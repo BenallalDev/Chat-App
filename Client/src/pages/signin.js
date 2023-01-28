@@ -6,7 +6,6 @@ import {
   Input,
   Stack,
   Button,
-  Heading,
   Text,
   useColorModeValue,
 } from '@chakra-ui/react';
@@ -28,7 +27,7 @@ export default function Signin() {
       bg={useColorModeValue('gray.50', 'gray.800')}>
       <Stack spacing={8} mx={'auto'} maxW={'lg'} py={12} px={6}>
         <Stack align={'center'}>
-          <Heading textAlign="center" fontSize={'4xl'}>Sign in to your account</Heading>
+          <Text textAlign="center" fontSize={'4xl'}>Sign in to your account</Text>
   
         </Stack>
         <Box

@@ -90,3 +90,15 @@ export const CheckLogin = createAsyncThunk(
         }
     }
 )
+
+export const Logout = createAsyncThunk(
+    "auth/logout",
+    async () => {
+        try {
+            const { data } = await api.APIlogout()
+            return data
+        } catch (error) {
+            throw error.response.data || "Something went wrong"
+        }
+    }
+)

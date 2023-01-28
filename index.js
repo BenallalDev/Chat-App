@@ -18,18 +18,18 @@ const io = new Server(server);
 app.use(express.json())
 app.use(cookieParser())
 app.use("/api/", user)
-app.use("/api/messages/", messages)
+app.use("/api/", messages)
 
 
 io.on("connection", socket => { 
 	socket.on('join-room', room => {
 		socket.join(room)
 	})
-	socket.on('send-message', (message, room) => {
-		if(room) {
-			socket.to(room).emit('recieve-message', message)
-		}
-	})	
+	socket.on("new-message", (room, message) => {
+		console.log(message)
+		socket.broadcast.to(room).emit("new-message", message)
+	})
+		
 });
 mongoose.set('strictQuery', false)
 mongoose.connect(process.env.DATABASE_URL, (err) => {

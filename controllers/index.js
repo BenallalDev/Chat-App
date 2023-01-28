@@ -1,40 +1,57 @@
 import User from "../models/user.js";
 
 
-export const SendMessage = async(sender, reciever, message, room) => {
+export const SendMessage = async(senderID, reciever, message, room) => {
     try {
-        const senderUser = await User.findOne({username:sender})
+        const senderUser = await User.findById(senderID)
+        const sender = senderUser.username
         const recieverUser = await User.findOne({username: reciever})
-        let messages = recieverUser.messages
-        let messages2 = senderUser.messages
-        let found = messages.find((conversation) => {
+        let recieverMessages = recieverUser.messages
+        let senderMessages = senderUser.messages
+        let recieverConversation = recieverMessages.find((conversation) => {
             if(conversation.member1 === sender && conversation.member2 === reciever || conversation.member1 === reciever && conversation.member2 === sender) return true
         })
-        let found2 =  messages.find((conversation) => {
+        let senderConversation =  senderMessages.find((conversation) => {
             if(conversation.member1 === sender && conversation.member2 === reciever || conversation.member1 === reciever && conversation.member2 === sender) return true
         })
-        if(found){
-            const index = messages.indexOf(found)
-            const index2 = messages.indexOf(found2)
-            const newChat = [...messages[index].chat, {
-                him: message,
-                date: new Date()}
-            ]
-            const newChat2 = 
-            [...messages[index2].chat, {
-                me: message,
-                date: new Date()}
-            ]
-            messages[index] = {...messages[index], chat: newChat}
-            messages2[index2] = {...messages2[index2], chat: newChat2}
-            recieverUser.messages = messages
-            senderUser.messages = messages2 
+        if(recieverConversation && senderConversation){
+
+            recieverConversation = {
+                ...recieverConversation,
+                chat: [
+                    ...recieverConversation.chat,
+                    {
+                        him: message,
+                        date: new Date()
+                    }
+                ]
+            }
+            senderConversation = {
+                ...senderConversation,
+                chat: [
+                    ...senderConversation.chat,
+                    {
+                        me: message,
+                        date: new Date()
+                    }
+                ]
+            }
+            const recieverNewMessages = recieverMessages.map(c => {
+                if(c.member1 === senderUser.username || c.member2 === senderUser.username) return recieverConversation
+                return c
+            })
+            const senderNewMessages = senderMessages.map(c => {
+                if(c.member1 === recieverUser.username || c.member2 === recieverUser.username) return senderConversation
+                return c
+            })
+            recieverUser.messages = recieverNewMessages
+            senderUser.messages = senderNewMessages
             await recieverUser.save()
             await senderUser.save()
-            return senderUser.messages
+            return senderUser.messages.find((conversation) => conversation.member1 === sender && conversation.member2 === reciever || conversation.member1 === reciever && conversation.member2 === sender)
         }
         else{
-            messages.push({
+            let newRecieverConversation =  {
                 room: room,
                 member1: reciever,
                 member2: sender,
@@ -42,8 +59,8 @@ export const SendMessage = async(sender, reciever, message, room) => {
                     him: message,
                     date: new Date()
                 }]
-            })
-            messages2.push({
+            }
+            let newSenderConversation = {
                 room: room,
                 member1: reciever,
                 member2: sender,
@@ -51,12 +68,14 @@ export const SendMessage = async(sender, reciever, message, room) => {
                     me: message,
                     date: new Date()
                 }]
-            })
-            recieverUser.messages = messages
-            senderUser.messages = messages2
+            }
+            recieverMessages.push(newRecieverConversation);
+            senderMessages.push(newSenderConversation);
+            recieverUser.messages = recieverMessages
+            senderUser.messages = senderMessages
             await recieverUser.save()
             await senderUser.save()
-            return senderUser.messages
+            return senderUser.messages.find((conversation) => conversation.member1 === sender && conversation.member2 === reciever || conversation.member1 === reciever && conversation.member2 === sender)
         }
     } catch (error) {
         return false

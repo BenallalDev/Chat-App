@@ -1,19 +1,88 @@
 import { CloseIcon } from '@chakra-ui/icons'
-import { Box, Button, Card, CardBody, CardFooter, CardHeader, Flex, Image, Input, Text, Textarea } from '@chakra-ui/react'
-import React, { useState } from 'react'
-import { Link } from "react-router-dom"
+import { Button, Card, CardBody, CardFooter, CardHeader, Flex, Image, Input, Text, Textarea } from '@chakra-ui/react'
+import React, { useEffect, useRef, useState } from 'react'
+import { Link, useParams } from "react-router-dom"
 import { MdSend } from "react-icons/md"
 import ChatLoading from '../Components/ChatLoading'
+import { useDispatch, useSelector } from 'react-redux'
+import { GetChat } from '../redux/actions/messages'
+import { SendMessage } from "../redux/actions/messages"
+import { io } from "socket.io-client"
 const Chat = () => {
-    const [loading, setLoading] = useState(true)
-    setTimeout(() => setLoading(false), 5000)
+    const { username } = useParams()
+    const { chatLoading, chat, room } = useSelector(state => state.messages)
+    const [newChat, setnewChat] = useState([])
+    const [message, setMessage] = useState("")
+    const dispatch = useDispatch()
+    const chatRef = useRef(null);
+    
+    useEffect(() => {
+        if (chatRef.current) {
+            chatRef.current.scrollTop = chatRef.current.scrollHeight - chatRef.current.clientHeight;
+        }
+    }, [newChat, chatRef]);
+    useEffect(() => {
+    dispatch(GetChat(username))
+    }, [])
+    function groupMessages(messages) {
+        let result = [];
+        let currentGroup = {};
+    
+        messages.forEach((message) => {
+        let sender = Object.keys(message)[0];
+    
+        if (!currentGroup.sender) {
+            currentGroup = {
+            sender: sender,
+            messages: [{
+                message: message[sender],
+                date: message.date
+            }]
+            };
+        } else if (currentGroup.sender === sender) {
+            currentGroup.messages.push({
+            message: message[sender],
+            date: message.date
+            });
+        } else {
+            result.push(currentGroup);
+            currentGroup = {
+            sender: sender,
+            messages: [{
+                message: message[sender],
+                date: message.date
+            }]
+            };
+        }
+        });
+    
+        result.push(currentGroup);
+        return result;
+    }
+    
+    useEffect(() => {
+        setnewChat(groupMessages(chat))
+    }, [chat])
+
+    const send_message = () => {
+        dispatch(SendMessage({username, message}))
+        setMessage("")
+        socket.emit("new-message", room, message)
+    }
+    const handleKeyPress = (event) => {
+        if(event.key === 'Enter'){
+            send_message()
+            socket.emit("new-message", room, message)
+        }
+    }
+    
     return (
         <Flex h="100vh" maxH="100vh" w="full" p="3rem">
             <Link to="/">
                 <CloseIcon color="black"  position="absolute" top="1rem" right="1rem" cursor="pointer" />
             </Link>
             {
-                loading ? (
+                chatLoading ? (
                     <ChatLoading />
                 ) : (
                     <Card w="100%" maxH="100%" boxShadow="base">
@@ -21,26 +90,39 @@ const Chat = () => {
                             <Image borderRadius="50%" src="https://images.pexels.com/photos/8199679/pexels-photo-8199679.jpeg?auto=compress&cs=tinysrgb&w=1600" w="50px" h="50px" mx=".5rem" />
                             <Text>Username</Text>
                         </CardHeader>
-                        <CardBody overflowY="scroll" as={Flex} flexDirection="column" gap="1rem">
-                            <Flex gap="1rem" alignItems="flex-start">
-                                <Image src="https://images.pexels.com/photos/8199679/pexels-photo-8199679.jpeg?auto=compress&cs=tinysrgb&w=1600" w="40px" h="40px" borderRadius="50%" />
-                                <Flex flexDirection="column" gap="1rem">
-                                    <Text w="90%" minH="100%" p=".5rem" bg="#eff3f6">Reprehenderit voluptate fugiat sunt voluptate consectetur laboris laboris fugiat elit sint do. Proident cupidatat cillum ea anim proident ipsum fugiat incididunt. Voluptate duis adipisicing ullamco ut reprehenderit cupidatat ipsum aliquip laboris minim eu. Do aliquip cupidatat fugiat nisi cupidatat nulla Lorem eu laboris fugiat proident est nulla.</Text>
-                                    <Text w="90%" h="fit-content" p=".5rem" bg="#eff3f6">Reprehenderit voluptate fugiat sunt voluptate consectetur laboris laboris fugiat elit sint do. Proident cupidatat cillum ea anim proident ipsum fugiat incididunt. Voluptate duis adipisicing ullamco ut reprehenderit cupidatat ipsum aliquip laboris minim eu. Do aliquip cupidatat fugiat nisi cupidatat nulla Lorem eu laboris fugiat proident est nulla.</Text>
-                                </Flex>
-                                
-                            
-                            </Flex>
-                            
-                            <Flex justifyContent="flex-end" gap="1rem" alignItems="flex-end">
-                                <Text w="90%" minH="100%" p=".5rem" color="white" bg="black">Reprehenderit voluptate fugiat sunt voluptate consectetur laboris laboris fugiat elit sint do. Proident cupidatat cillum ea anim proident ipsum fugiat incididunt. Voluptate duis adipisicing ullamco ut reprehenderit cupidatat ipsum aliquip laboris minim eu. Do aliquip cupidatat fugiat nisi cupidatat nulla Lorem eu laboris fugiat proident est nulla.</Text>
-                            </Flex>
+                        <CardBody ref={chatRef} overflowY="scroll" as={Flex} flexDirection="column" gap="1rem">
+                            {
+                                newChat.map((e, index) => (
+                                    e.sender === "him" ? (
+                                        <Flex key={index} gap="1rem" alignItems="flex-start">
+                                            <Image src="https://images.pexels.com/photos/8199679/pexels-photo-8199679.jpeg?auto=compress&cs=tinysrgb&w=1600" w="40px" h="40px" borderRadius="50%" />
+                                            <Flex w="100%" flexDirection="column" gap="1rem">
+                                                {
+                                                    e.messages?.map((message, ix) => (
+                                                        <Text key={ix} w="fit-content" maxW="90%" minH="100%" p=".5rem" bg="#eff3f6">{message.message}</Text>
+                                                    ))
+                                                }
+                                            </Flex>
+                                        </Flex>
+                                    ) : (
+                                        <Flex w="100%" alignSelf="flex-end" flexDirection="column" key={index} gap="1rem">
+                                            {
+                                                e.messages?.map((message, i) => (
+                                                    <Text key={i} alignSelf="flex-end" w="fit-content" maxW="90%" p=".5rem" color="white" bg="black">{message.message}</Text>
+                                                ))
+                                            }
+                                        </Flex>
+                                    )
+                                    
+                                    
+                                ))
+                            }
                             
                         </CardBody>
                         <CardFooter as={Flex} gap="1rem" alignItems="center">
-                            <Textarea rows="2" resize="none" />
+                            <Textarea onKeyPress={handleKeyPress} value={message} onChange={(e) => setMessage(e.target.value)} rows="2" resize="none" />
                             <Button h="90%" w="60px" colorScheme="blue">
-                                <MdSend style={{fontSize:"1.5rem"}} />
+                                <MdSend onClick={send_message} style={{fontSize:"1.5rem"}} />
                             </Button>
                         </CardFooter>
                     </Card> 
