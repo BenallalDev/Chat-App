@@ -5,9 +5,12 @@ import { Link, useParams } from "react-router-dom"
 import { MdSend } from "react-icons/md"
 import ChatLoading from '../Components/ChatLoading'
 import { useDispatch, useSelector } from 'react-redux'
-import { GetChat } from '../redux/actions/messages'
-import { SendMessage } from "../redux/actions/messages"
-import { io } from "socket.io-client"
+import { GetChat, RecieveMessage } from '../redux/actions/messages'
+import { SendMessage} from "../redux/actions/messages"
+import { socket } from "../socket.io"
+import { recieve_message } from '../redux/messages'
+
+
 const Chat = () => {
     const { username } = useParams()
     const { chatLoading, chat, room } = useSelector(state => state.messages)
@@ -22,8 +25,17 @@ const Chat = () => {
         }
     }, [newChat, chatRef]);
     useEffect(() => {
-    dispatch(GetChat(username))
+        dispatch(GetChat(username))
+        socket.on("new-message", message => {
+            if(typeof message === 'string'){
+                dispatch(recieve_message(message))
+            }
+        })
     }, [])
+    useEffect(() => {
+        socket.emit("join-room", room)
+    }, [room])
+    
     function groupMessages(messages) {
         let result = [];
         let currentGroup = {};
@@ -63,19 +75,30 @@ const Chat = () => {
     useEffect(() => {
         setnewChat(groupMessages(chat))
     }, [chat])
-
     const send_message = () => {
         dispatch(SendMessage({username, message}))
+            .then(res => {
+                socket.emit("send-message", room, message)
+            })
         setMessage("")
-        socket.emit("new-message", room, message)
+        
     }
     const handleKeyPress = (event) => {
         if(event.key === 'Enter'){
+            event.preventDefault()
             send_message()
-            socket.emit("new-message", room, message)
         }
     }
-    
+    const options = {
+        day: '2-digit',
+        month: '2-digit',
+        year: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+    };
+      
+    const f = new Intl.DateTimeFormat("en-us", options)
+
     return (
         <Flex h="100vh" maxH="100vh" w="full" p="3rem">
             <Link to="/">
@@ -99,16 +122,33 @@ const Chat = () => {
                                             <Flex w="100%" flexDirection="column" gap="1rem">
                                                 {
                                                     e.messages?.map((message, ix) => (
-                                                        <Text key={ix} w="fit-content" maxW="90%" minH="100%" p=".5rem" bg="#eff3f6">{message.message}</Text>
+                                                        ix === e.messages.length - 1 ? (
+                                                            <Flex flexDirection="column" key={ix}>
+                                                                <Text w="fit-content" maxW="90%" minH="100%" p=".5rem" mb="0" bg="#eff3f6">{message.message}</Text>
+                                                                <Text  fontWeight="bold" color="grey" my=".3rem" fontSize=".8rem">{f.format(new Date(message.date))}</Text>
+                                                            </Flex>
+                                                        ) : (
+                                                            <Text key={ix} w="fit-content" maxW="90%" minH="100%" p=".5rem" bg="#eff3f6">{message.message}</Text>
+                                                        )
+                                                        
                                                     ))
                                                 }
                                             </Flex>
                                         </Flex>
                                     ) : (
                                         <Flex w="100%" alignSelf="flex-end" flexDirection="column" key={index} gap="1rem">
+                                            
                                             {
                                                 e.messages?.map((message, i) => (
-                                                    <Text key={i} alignSelf="flex-end" w="fit-content" maxW="90%" p=".5rem" color="white" bg="black">{message.message}</Text>
+                                                    i === e.messages.length - 1 ? (
+                                                        <Flex flexDirection="column" key={i}>
+                                                            <Text key={i} alignSelf="flex-end" w="fit-content" maxW="90%" p=".5rem" color="white" bg="black">{message.message}</Text>
+                                                            <Text  fontWeight="bold" alignSelf="flex-end" color="grey" my=".5rem" fontSize=".8rem">{f.format(new Date(message.date))}</Text>
+                                                        </Flex>
+                                                    ) : (
+                                                        <Text key={i} alignSelf="flex-end" w="fit-content" maxW="90%" p=".5rem" color="white" bg="black">{message.message}</Text>
+                                                    )
+                                                    
                                                 ))
                                             }
                                         </Flex>

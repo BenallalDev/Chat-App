@@ -12,6 +12,11 @@ const initialState = {
 export const messagesSlice = createSlice({
     name: 'messages',
     initialState,
+    reducers: {
+        recieve_message: (state, action) => {
+            state.chat = [...state.chat, {him: action.payload, date: new Date().toString()}]
+        }  
+    },
     extraReducers: builder => {
         builder
             .addCase(GetMessages.pending, (state, action) => {
@@ -35,6 +40,7 @@ export const messagesSlice = createSlice({
             })
     }
 })
+export const { recieve_message } = messagesSlice.actions
 
 
 export default messagesSlice.reducer

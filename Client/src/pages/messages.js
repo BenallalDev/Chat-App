@@ -51,7 +51,7 @@ const Messages = () => {
                 ))
             )
         }
-        <Button onClick={() => dispatch(Logout())} as={Link} my="1rem" w="100px" colorScheme="blue">Logout</Button>
+        <Button onClick={() => dispatch(Logout())}  my="1rem" w="100px" colorScheme="blue">Logout</Button>
     </Flex>
   )
 }

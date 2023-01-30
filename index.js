@@ -12,7 +12,10 @@ dotenv.config()
 const PORT = process.env.PORT || 5050
 const app = express(); 
 const server = createServer(app); 
-const io = new Server(server);
+const io = new Server(server, {
+	cors: "http://localhost:3000/",
+	methods: ["GET", "POST"]
+});
 
 
 app.use(express.json())
@@ -25,9 +28,8 @@ io.on("connection", socket => {
 	socket.on('join-room', room => {
 		socket.join(room)
 	})
-	socket.on("new-message", (room, message) => {
-		console.log(message)
-		socket.broadcast.to(room).emit("new-message", message)
+	socket.on("send-message", (room, message) => {
+		socket.to(room).emit("new-message", message)
 	})
 		
 });
