@@ -1,10 +1,10 @@
 import { createSlice} from '@reduxjs/toolkit'
-import Swal from 'sweetalert2'
-import { GetChat, GetMessages, SendMessage } from './actions/messages'
+import { GetChat, GetMessages, SearchUser, SendMessage } from './actions/messages'
 
 const initialState = {
   messages: [],
   chat: [],
+  searchLoading: false,
   messagesLoading: false,
   chatLoading: false
 }
@@ -15,7 +15,7 @@ export const messagesSlice = createSlice({
     reducers: {
         recieve_message: (state, action) => {
             state.chat = [...state.chat, {him: action.payload, date: new Date().toString()}]
-        }  
+        }
     },
     extraReducers: builder => {
         builder
@@ -37,6 +37,15 @@ export const messagesSlice = createSlice({
             })
             .addCase(SendMessage.fulfilled, (state, action) => {
                 state.chat = action.payload
+            })
+            .addCase(SearchUser.pending, (state, action) => {
+                state.searchLoading = true
+            })
+            .addCase(SearchUser.fulfilled, (state, action) => {
+                state.searchLoading = false
+            })
+            .addCase(SearchUser.rejected, (state, action) => {
+                state.searchLoading = false
             })
     }
 })

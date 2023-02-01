@@ -17,6 +17,7 @@ const Chat = () => {
     const { chatLoading, chat, room } = useSelector(state => state.messages)
     const [newChat, setnewChat] = useState([])
     const [message, setMessage] = useState("")
+    const [senderTyping, setSenderTyping] = useState(false)
     const dispatch = useDispatch()
     const chatRef = useRef(null);
     
@@ -31,6 +32,14 @@ const Chat = () => {
             if(typeof message === 'string'){
                 dispatch(recieve_message(message))
             }
+        })
+        socket.on("sender-start-typing", () => {
+            setSenderTyping(true)
+
+        })
+        socket.on("sender-stop-typing", () => {
+            setSenderTyping(false)
+            
         })
     }, [])
     useEffect(() => {
@@ -77,6 +86,7 @@ const Chat = () => {
         setnewChat(groupMessages(chat))
     }, [chat])
     const send_message = () => {
+        socket.emit("stop-typing", room)
         dispatch(SendMessage({username, message}))
             .then(res => {
                 socket.emit("send-message", room, message)
@@ -101,6 +111,16 @@ const Chat = () => {
       
     const f = new Intl.DateTimeFormat("en-us", options)
 
+    const typing = (val) => {
+        if(message === ""){
+            socket.emit("start-typing", room)
+        }
+        else if (val === "" && message.length > 0){
+            socket.emit("stop-typing", room)
+        }
+        setMessage(val)
+    }
+    
     return (
         <Flex minH="100vh" maxH="100vh" w="full" p="3rem">
             <Link to="/">
@@ -114,6 +134,9 @@ const Chat = () => {
                         <CardHeader as={Flex} alignItems="center" borderBottom="1px solid #dedede" py=".8rem">
                             <Image borderRadius="50%" src="https://images.pexels.com/photos/8199679/pexels-photo-8199679.jpeg?auto=compress&cs=tinysrgb&w=1600" w="50px" h="50px" mx=".5rem" />
                             <Text>Username</Text>
+                            {
+                                senderTyping ? <Text mx="1rem" p=".5rem 1rem" fontWeight="bold" color="blackAlpha.500" bg="blackAlpha.50">Typing...</Text> : null
+                            }
                         </CardHeader>
                         <CardBody ref={chatRef} overflowY="scroll" as={Flex} flexDirection="column" gap="1rem">
                             {
@@ -125,10 +148,10 @@ const Chat = () => {
                                                 {
                                                     e.messages?.map((message, ix) => (
                                                         ix === e.messages.length - 1 ? (
-                                                            <Flex justifyContent="flex-start" maxW="100%" minH="100%">
-                                                                <Flex maxW="80%" flexDirection="column" key={ix}>
+                                                            <Flex key={ix} justifyContent="flex-start" maxW="100%" minH="100%">
+                                                                <Flex maxW="80%" flexDirection="column">
                                                                     <Text minW="fit-content" p=".5rem" mb="0" bg="#eff3f6">{message.message}</Text>
-                                                                    {/* <Text  fontWeight="bold" color="grey" my=".3rem" fontSize=".5rem">{f.format(new Date(message.date))}</Text> */}
+                                                                    <Text  fontWeight="bold" color="grey" my=".3rem" fontSize=".8rem">{f.format(new Date(message.date))}</Text>
                                                                 </Flex>
                                                                 <Reacting />
                                                             </Flex> 
@@ -169,9 +192,10 @@ const Chat = () => {
                                 ))
                             }
                             
+                            
                         </CardBody>
                         <CardFooter as={Flex} gap="1rem" alignItems="center">
-                            <Textarea onKeyPress={handleKeyPress} value={message} onChange={(e) => setMessage(e.target.value)} rows="2" resize="none" />
+                            <Textarea onKeyPress={handleKeyPress} value={message}  onChange={(e) => typing(e.target.value)} rows="2" resize="none" />
                             <Button h="90%" w="60px" colorScheme="blue">
                                 <MdSend onClick={send_message} style={{fontSize:"1.5rem"}} />
                             </Button>

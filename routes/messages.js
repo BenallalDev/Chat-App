@@ -10,6 +10,7 @@ const router = Router()
 
 
 router.post('/messages/:username', login, async(req, res) => {
+    console.log("HII")
     const { message} = req.body
     const reciever = req.params.username
     const token = req.cookies[process.env.COOKIE_NAME]
@@ -22,7 +23,19 @@ router.post('/messages/:username', login, async(req, res) => {
     }
     res.status(200).json(sendingMessage.chat)
 })
-
+router.get("/searchUser/:username", login, async (req, res) => {
+    try {
+        const { username } = req.params
+        const user = await User.findOne({username})
+        if(!user) {
+            res.status(404).json("No user found")
+            return;
+        }
+        res.status(200).json("User found")
+    } catch (error) {
+        res.status(404).json("No user found")
+    }
+})
 router.get('/chat/:username', login, async (req, res) => {
     try {
         const username = req.params.username

@@ -31,6 +31,12 @@ io.on("connection", socket => {
 	socket.on("send-message", (room, message) => {
 		socket.to(room).emit("new-message", message)
 	})
+	socket.on("start-typing", room => {
+		socket.to(room).emit("sender-start-typing")
+	})
+	socket.on("stop-typing", room => {
+		socket.to(room).emit("sender-stop-typing")
+	})
 		
 });
 mongoose.set('strictQuery', false)
