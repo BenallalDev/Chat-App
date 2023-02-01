@@ -21,7 +21,8 @@ export default function Signin() {
 
   return (
     <Flex
-      minH={'calc(100vh - 70px)'}
+
+      minH="100vh"
       align={'center'}
       justify={'center'}
       bg={useColorModeValue('gray.50', 'gray.800')}>

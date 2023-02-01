@@ -5,10 +5,11 @@ import { Link, useParams } from "react-router-dom"
 import { MdSend } from "react-icons/md"
 import ChatLoading from '../Components/ChatLoading'
 import { useDispatch, useSelector } from 'react-redux'
-import { GetChat, RecieveMessage } from '../redux/actions/messages'
+import { GetChat} from '../redux/actions/messages'
 import { SendMessage} from "../redux/actions/messages"
 import { socket } from "../socket.io"
 import { recieve_message } from '../redux/messages'
+import Reacting from '../Components/ReactingBtn' 
 
 
 const Chat = () => {
@@ -89,6 +90,7 @@ const Chat = () => {
             send_message()
         }
     }
+    
     const options = {
         day: '2-digit',
         month: '2-digit',
@@ -100,7 +102,7 @@ const Chat = () => {
     const f = new Intl.DateTimeFormat("en-us", options)
 
     return (
-        <Flex h="100vh" maxH="100vh" w="full" p="3rem">
+        <Flex minH="100vh" maxH="100vh" w="full" p="3rem">
             <Link to="/">
                 <CloseIcon color="black"  position="absolute" top="1rem" right="1rem" cursor="pointer" />
             </Link>
@@ -123,12 +125,20 @@ const Chat = () => {
                                                 {
                                                     e.messages?.map((message, ix) => (
                                                         ix === e.messages.length - 1 ? (
-                                                            <Flex flexDirection="column" key={ix}>
-                                                                <Text w="fit-content" maxW="90%" minH="100%" p=".5rem" mb="0" bg="#eff3f6">{message.message}</Text>
-                                                                <Text  fontWeight="bold" color="grey" my=".3rem" fontSize=".8rem">{f.format(new Date(message.date))}</Text>
-                                                            </Flex>
+                                                            <Flex justifyContent="flex-start" maxW="100%" minH="100%">
+                                                                <Flex maxW="80%" flexDirection="column" key={ix}>
+                                                                    <Text minW="fit-content" p=".5rem" mb="0" bg="#eff3f6">{message.message}</Text>
+                                                                    {/* <Text  fontWeight="bold" color="grey" my=".3rem" fontSize=".5rem">{f.format(new Date(message.date))}</Text> */}
+                                                                </Flex>
+                                                                <Reacting />
+                                                            </Flex> 
+
+                                                            
                                                         ) : (
-                                                            <Text key={ix} w="fit-content" maxW="90%" minH="100%" p=".5rem" bg="#eff3f6">{message.message}</Text>
+                                                            <Flex key={ix}>
+                                                                <Text key={ix} w="fit-content" maxW="90%" minH="100%" p=".5rem" bg="#eff3f6">{message.message}</Text>
+                                                                <Reacting />
+                                                            </Flex>
                                                         )
                                                         
                                                     ))
@@ -144,6 +154,7 @@ const Chat = () => {
                                                         <Flex flexDirection="column" key={i}>
                                                             <Text key={i} alignSelf="flex-end" w="fit-content" maxW="90%" p=".5rem" color="white" bg="black">{message.message}</Text>
                                                             <Text  fontWeight="bold" alignSelf="flex-end" color="grey" my=".5rem" fontSize=".8rem">{f.format(new Date(message.date))}</Text>
+                                                            
                                                         </Flex>
                                                     ) : (
                                                         <Text key={i} alignSelf="flex-end" w="fit-content" maxW="90%" p=".5rem" color="white" bg="black">{message.message}</Text>

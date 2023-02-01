@@ -26,9 +26,6 @@ function App() {
       {loggedIn ? <Route path="/verify/:email" element={<Navigate to="/" />} /> : <Route path="/verify/:email" element={<VerifyEmail />} />}
       {loggedIn ? <Route path="/changePassword" element={<Navigate to="/" />} /> : <Route path="/changePassword" element={<ResetPassword />} />}
       {loggedIn ? <Route path="/recover/:email/:code" element={<Navigate to="/" />} /> :<Route path="/recover/:email/:code" element={<CheckLink />} />}
-      
-      
-      
     </Routes>
   );
 }

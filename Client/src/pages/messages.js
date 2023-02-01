@@ -16,7 +16,7 @@ const Messages = () => {
     console.log(messages)
     
   return (
-    <Flex w="full" p="2rem" flexDirection="column">
+    <Flex minH="100vh" w="full" p="2rem" flexDirection="column">
         <Text my="1rem" color="blackAlpha.800" fontWeight="semibold" fontSize="1.5rem">
             Messages:
         </Text>
