@@ -1,5 +1,5 @@
 import User from "../models/user.js";
-
+import { v4 as uuid} from "uuid"
 
 export const SendMessage = async(senderID, reciever, message, room) => {
     try {
@@ -15,14 +15,13 @@ export const SendMessage = async(senderID, reciever, message, room) => {
             if(conversation.member1 === sender && conversation.member2 === reciever || conversation.member1 === reciever && conversation.member2 === sender) return true
         })
         if(recieverConversation && senderConversation){
-
             recieverConversation = {
                 ...recieverConversation,
                 chat: [
                     ...recieverConversation.chat,
                     {
                         him: message,
-                        date: new Date()
+                        date: new Date(),
                     }
                 ]
             }
@@ -32,7 +31,7 @@ export const SendMessage = async(senderID, reciever, message, room) => {
                     ...senderConversation.chat,
                     {
                         me: message,
-                        date: new Date()
+                        date: new Date(),
                     }
                 ]
             }
@@ -50,14 +49,14 @@ export const SendMessage = async(senderID, reciever, message, room) => {
             await senderUser.save()
             return senderUser.messages.find((conversation) => conversation.member1 === sender && conversation.member2 === reciever || conversation.member1 === reciever && conversation.member2 === sender)
         }
-        else{
+        else{ 
             let newRecieverConversation =  {
                 room: room,
                 member1: reciever,
                 member2: sender,
                 chat: [{
                     him: message,
-                    date: new Date()
+                    date: new Date(),
                 }]
             }
             let newSenderConversation = {
@@ -66,7 +65,7 @@ export const SendMessage = async(senderID, reciever, message, room) => {
                 member2: sender,
                 chat: [{
                     me: message,
-                    date: new Date()
+                    date: new Date(),
                 }]
             }
             recieverMessages.push(newRecieverConversation);
@@ -79,5 +78,43 @@ export const SendMessage = async(senderID, reciever, message, room) => {
         }
     } catch (error) {
         return false
+    }
+}
+
+
+export const reactToMessage = async (reaction, messageDate, reacterID, username) => {
+    try {
+        const user = await User.findOne({username})
+        const reacterConversation = reacterUser.messages.find((conversation) => {
+            if(conversation.member1 === reacterUser.username && conversation.member2 === username || conversation.member1 === username && conversation.member2 === reacterUser.username) return true
+        })
+        const recieverConversation =  user.messages.find((conversation) => {
+            if(conversation.member1 === reacterUser.username && conversation.member2 === username || conversation.member1 === username && conversation.member2 === reacterUser.username) return true
+        })
+        if(recieverConversation && reacterConversation){
+            reacterConversation = {
+                ...reacterConversation,
+                chat: reacterConversation.map(msg => {
+                    if(msg.date.toISOString() === messageDate){
+                        return {...msg, reaction}
+                    }
+                    return msg
+                })
+                
+            }
+            recieverConversation = {
+                ...recieverConversation,
+                chat: recieverConversation.map(msg => {
+                    if(msg.date.toISOString() === messageDate){
+                        return {...msg, reaction}
+                    }
+                    return msg
+                })
+            } 
+        }
+
+
+    } catch (error) {
+        
     }
 }

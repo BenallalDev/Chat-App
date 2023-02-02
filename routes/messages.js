@@ -10,7 +10,6 @@ const router = Router()
 
 
 router.post('/messages/:username', login, async(req, res) => {
-    console.log("HII")
     const { message} = req.body
     const reciever = req.params.username
     const token = req.cookies[process.env.COOKIE_NAME]
@@ -67,5 +66,16 @@ router.get("/messages", login, async(req, res) => {
     }
 })
 
+
+router.post("/message/react", login, async(req, res) => {
+    try {
+        const { reaction } = req.body 
+        const token = req.cookies[process.env.COOKIE_NAME]
+        const decoded = jwt.verify(token, process.env.JWT_KEY)
+        
+    } catch (error) {
+        
+    }
+})
 
 export default router
