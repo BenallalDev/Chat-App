@@ -1,18 +1,44 @@
 import { CloseIcon } from '@chakra-ui/icons'
 import { Box, Flex, Image, useDisclosure } from '@chakra-ui/react'
-import React from 'react'
+import React, { useState } from 'react'
+import Swal from 'sweetalert2'
+import { useDispatch } from 'react-redux'
+import { ReactToMessage } from '../redux/actions/messages'
 
-const Reacting = () => {
+const Reacting = ({msgDate, username}) => {
   const { isOpen, onOpen, onClose } = useDisclosure()
+  const dispatch = useDispatch()
+  const [reactionChosen, setreactionChosen] = useState("")
+
+
+  const react = (reaction) => {
+    const reactions = ["angry", "sad", "fire", "laugh"];
+
+    if(reactions.includes(reaction)) {
+      setreactionChosen(reaction)
+      dispatch(ReactToMessage({reaction, msgDate, username}))
+      onClose()
+      
+    }
+    else {
+      Swal.fire({
+        icon:"error",
+        title: "Invalid Reaction"
+      })
+    }
+    return;
+  }
+
+
   return (
     <>
       {
         isOpen ? (
-          <Flex gap="5px" my=".2rem" h="fit-content" borderRadius="20px" alignItems="center">
-            <Image cursor="pointer" w="30px" h="30px" src="/assets/angry.png" />
-            <Image cursor="pointer" w="30px" h="30px" src="/assets/sad.png" />
-            <Image cursor="pointer" w="30px" h="30px" src="/assets/atouchia.png" />
-            <Image cursor="pointer" w="30px" h="30px" src="/assets/laugh.png" />
+          <Flex mx=".5rem" gap="5px" my=".2rem" h="fit-content" borderRadius="20px" alignItems="center">
+            <Image cursor="pointer" onClick={() => react("angry")} w="30px" h="30px" src="/assets/angry.png" />
+            <Image cursor="pointer" onClick={() => react("sad")} w="30px" h="30px" src="/assets/sad.png" />
+            <Image cursor="pointer" onClick={() => react("fire")} w="30px" h="30px" src="/assets/fire.png" />
+            <Image cursor="pointer" onClick={() => react("laugh")} w="30px" h="30px" src="/assets/laugh.png" />
             <CloseIcon onClick={onClose} cursor="pointer" mx=".3rem" w="10px" h="10px" />
           </Flex>
         ) : (

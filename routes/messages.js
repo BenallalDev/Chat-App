@@ -2,7 +2,7 @@ import { Router } from "express";
 import User from "../models/user.js";
 import jwt from "jsonwebtoken"
 import { v4 as uuidv4} from "uuid"
-import { SendMessage } from "../controllers/index.js";
+import { reactToMessage, SendMessage } from "../controllers/index.js";
 import login from "../middleware/index.js";
 
 
@@ -69,12 +69,17 @@ router.get("/messages", login, async(req, res) => {
 
 router.post("/message/react", login, async(req, res) => {
     try {
-        const { reaction } = req.body 
+        const { reaction, msgDate, username } = req.body 
         const token = req.cookies[process.env.COOKIE_NAME]
         const decoded = jwt.verify(token, process.env.JWT_KEY)
-        
+        const reacting = await reactToMessage(reaction, msgDate, decoded.id, username)
+        if(!reacting) {
+            res.status(401).json("React Error")
+            return;
+        }
+        res.status(200).json(reacting)
     } catch (error) {
-        
+        res.status(500).json("Something went wrong")
     }
 })
 

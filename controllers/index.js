@@ -85,16 +85,17 @@ export const SendMessage = async(senderID, reciever, message, room) => {
 export const reactToMessage = async (reaction, messageDate, reacterID, username) => {
     try {
         const user = await User.findOne({username})
-        const reacterConversation = reacterUser.messages.find((conversation) => {
+        const reacterUser = await User.findById(reacterID)
+        let reacterConversation = reacterUser.messages.find((conversation) => {
             if(conversation.member1 === reacterUser.username && conversation.member2 === username || conversation.member1 === username && conversation.member2 === reacterUser.username) return true
         })
-        const recieverConversation =  user.messages.find((conversation) => {
+        let recieverConversation =  user.messages.find((conversation) => {
             if(conversation.member1 === reacterUser.username && conversation.member2 === username || conversation.member1 === username && conversation.member2 === reacterUser.username) return true
         })
         if(recieverConversation && reacterConversation){
             reacterConversation = {
                 ...reacterConversation,
-                chat: reacterConversation.map(msg => {
+                chat: reacterConversation.chat.map(msg => {
                     if(msg.date.toISOString() === messageDate){
                         return {...msg, reaction}
                     }
@@ -104,7 +105,7 @@ export const reactToMessage = async (reaction, messageDate, reacterID, username)
             }
             recieverConversation = {
                 ...recieverConversation,
-                chat: recieverConversation.map(msg => {
+                chat: recieverConversation.chat.map(msg => {
                     if(msg.date.toISOString() === messageDate){
                         return {...msg, reaction}
                     }
@@ -112,9 +113,16 @@ export const reactToMessage = async (reaction, messageDate, reacterID, username)
                 })
             } 
         }
-
-
+        user.messages = recieverConversation
+        reacterUser.messages = reacterConversation
+        await user.save()
+        await reacterUser.save()
+        return reacterUser.messages.find((conversation) => {
+            if(conversation.member1 === reacterUser.username && conversation.member2 === username || conversation.member1 === username && conversation.member2 === reacterUser.username) return true
+        }).chat
     } catch (error) {
-        
+        console.log(error)
+
+        return false
     }
 }

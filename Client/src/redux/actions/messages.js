@@ -51,3 +51,16 @@ export const SearchUser = createAsyncThunk(
         }
     }
 )
+
+export const ReactToMessage = createAsyncThunk(
+    "messages/react",
+    async (info) => {
+        try {
+            const { reaction, msgDate, username } = info
+            const { data } = await api.APIreact(reaction, msgDate, username)
+            return data
+        } catch (error) {
+            throw error.response.data || "Something went wrong"
+        }
+    }
+)

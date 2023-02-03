@@ -10,7 +10,7 @@ import { SendMessage} from "../redux/actions/messages"
 import { socket } from "../socket.io"
 import { recieve_message } from '../redux/messages'
 import Reacting from '../Components/ReactingBtn' 
-
+import { useMediaQuery } from '@chakra-ui/react'
 
 const Chat = () => {
     const { username } = useParams()
@@ -20,7 +20,7 @@ const Chat = () => {
     const [senderTyping, setSenderTyping] = useState(false)
     const dispatch = useDispatch()
     const chatRef = useRef(null);
-    
+    const [isSmallerThan515] = useMediaQuery('(max-width: 550px)')
     useEffect(() => {
         if (chatRef.current) {
             chatRef.current.scrollTop = chatRef.current.scrollHeight - chatRef.current.clientHeight;
@@ -45,6 +45,14 @@ const Chat = () => {
     useEffect(() => {
         socket.emit("join-room", room)
     }, [room])
+
+    const getEmoji = (emojiName) => {
+        const reactions = ["angry", "sad", "fire", "laugh"];
+        if(reactions.includes(emojiName)){
+            
+        }
+        return `/assets/${emojiName}.png`
+    } 
     
     function groupMessages(messages) {
         let result = [];
@@ -58,13 +66,15 @@ const Chat = () => {
             sender: sender,
             messages: [{
                 message: message[sender],
-                date: message.date
+                date: message.date,
+                reaction:message.reaction
             }]
             };
         } else if (currentGroup.sender === sender) {
             currentGroup.messages.push({
             message: message[sender],
-            date: message.date
+            date: message.date,
+            reaction:message.reaction
             });
         } else {
             result.push(currentGroup);
@@ -72,7 +82,8 @@ const Chat = () => {
             sender: sender,
             messages: [{
                 message: message[sender],
-                date: message.date
+                date: message.date,
+                reaction:message.reaction
             }]
             };
         }
@@ -122,9 +133,9 @@ const Chat = () => {
     }
     
     return (
-        <Flex minH="100vh" maxH="100vh" w="full" p="3rem">
+        <Flex minH="100vh" maxH="100vh" w="full"  p={isSmallerThan515 ? 0 : "3rem"}>
             <Link to="/">
-                <CloseIcon color="black"  position="absolute" top="1rem" right="1rem" cursor="pointer" />
+                <CloseIcon color="black"  position="absolute" zIndex="99" top={isSmallerThan515 ? "1.7rem" : "1rem"} right={isSmallerThan515 ? "1.7rem" : "1rem"} cursor="pointer" />
             </Link>
             {
                 chatLoading ? (
@@ -133,7 +144,7 @@ const Chat = () => {
                     <Card w="100%" maxH="100%" boxShadow="base">
                         <CardHeader as={Flex} alignItems="center" borderBottom="1px solid #dedede" py=".8rem">
                             <Image borderRadius="50%" src="https://images.pexels.com/photos/8199679/pexels-photo-8199679.jpeg?auto=compress&cs=tinysrgb&w=1600" w="50px" h="50px" mx=".5rem" />
-                            <Text>Username</Text>
+                            <Text>{username}</Text>
                             {
                                 senderTyping ? <Text mx="1rem" p=".5rem 1rem" fontWeight="bold" color="blackAlpha.500" bg="blackAlpha.50">Typing...</Text> : null
                             }
@@ -148,19 +159,25 @@ const Chat = () => {
                                                 {
                                                     e.messages?.map((message, ix) => (
                                                         ix === e.messages.length - 1 ? (
-                                                            <Flex key={ix} justifyContent="flex-start" maxW="100%" minH="100%">
+                                                            <Flex flexWrap="wrap" key={ix} justifyContent="flex-start" maxW="100%" minH="100%">
                                                                 <Flex maxW="80%" flexDirection="column">
-                                                                    <Text minW="fit-content" p=".5rem" mb="0" bg="#eff3f6">{message.message}</Text>
+                                                                    <Text position="relative" minW="fit-content" p=".5rem" mb="0" bg="#eff3f6">
+                                                                        {message.message}
+                                                                        {message.reaction ? <Image  w="30px" h="30px" position="absolute" top="-15px" right="-15px" src={getEmoji(message.reaction)} /> : null}
+                                                                    </Text>
                                                                     <Text  fontWeight="bold" color="grey" my=".3rem" fontSize=".8rem">{f.format(new Date(message.date))}</Text>
                                                                 </Flex>
-                                                                <Reacting />
+                                                                <Reacting msgDate={new Date(message.date).toISOString()} username={username} />
                                                             </Flex> 
 
                                                             
                                                         ) : (
-                                                            <Flex key={ix}>
-                                                                <Text key={ix} w="fit-content" maxW="90%" minH="100%" p=".5rem" bg="#eff3f6">{message.message}</Text>
-                                                                <Reacting />
+                                                            <Flex key={ix} flexWrap="wrap">
+                                                                <Text position="relative" key={ix} w="fit-content" maxW="90%" minH="100%" p=".5rem" bg="#eff3f6">
+                                                                    {message.message}
+                                                                    {message.reaction ? <Image  w="30px" h="30px" position="absolute" top="-15px" right="-15px" src={getEmoji(message.reaction)} /> : null}
+                                                                </Text>
+                                                                <Reacting msgDate={new Date(message.date).toISOString()} username={username} />
                                                             </Flex>
                                                         )
                                                         
@@ -175,12 +192,16 @@ const Chat = () => {
                                                 e.messages?.map((message, i) => (
                                                     i === e.messages.length - 1 ? (
                                                         <Flex flexDirection="column" key={i}>
-                                                            <Text key={i} alignSelf="flex-end" w="fit-content" maxW="90%" p=".5rem" color="white" bg="black">{message.message}</Text>
+                                                            <Text position="relative" key={i} alignSelf="flex-end" w="fit-content" maxW="90%" p=".5rem" color="white" bg="black">{message.message}
+                                                            {message.reaction ? <Image  w="30px" h="30px" position="absolute" top="-15px" left="-15px" src={getEmoji(message.reaction)} /> : null}
+                                                            </Text>
                                                             <Text  fontWeight="bold" alignSelf="flex-end" color="grey" my=".5rem" fontSize=".8rem">{f.format(new Date(message.date))}</Text>
                                                             
                                                         </Flex>
                                                     ) : (
-                                                        <Text key={i} alignSelf="flex-end" w="fit-content" maxW="90%" p=".5rem" color="white" bg="black">{message.message}</Text>
+                                                        <Text key={i} position="relative" alignSelf="flex-end" w="fit-content" maxW="90%" p=".5rem" color="white" bg="black">{message.message}
+                                                            {message.reaction ? <Image  w="30px" h="30px" position="absolute" top="-15px" left="-15px" src={getEmoji(message.reaction)} /> : null}  
+                                                        </Text>
                                                     )
                                                     
                                                 ))
