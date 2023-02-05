@@ -11,7 +11,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { CheckLogin } from "./redux/actions/auth";
 import CheckLink from "./pages/checkLink";
 function App() {
-  const { loggedIn } = useSelector(state => state.auth)
+  const { loggedIn, username } = useSelector(state => state.auth)
   const dispatch = useDispatch()
   useEffect(() => {
     dispatch(CheckLogin())
@@ -22,10 +22,10 @@ function App() {
       {loggedIn ? <Route path="/" element={<Messages />} /> : <Route path="/" element={<SignIn />} />}
       {loggedIn ? <Route path="/chat/:username" element={<Chat />} /> : <Route path="/chat/:username" element={<Navigate to="/" />} />}
       {loggedIn ? <Route path="/signup" element={<Navigate to="/" />} /> : <Route path="/signUp" element={<Signup />} />}
-      {loggedIn ? <Route path="/forgetPassword" element={<Navigate to="/" />} /> : <Route path="/forgot" element={<ForgotPassword />} />}
-      {loggedIn ? <Route path="/verify/:email" element={<Navigate to="/" />} /> : <Route path="/verify/:email" element={<VerifyEmail />} />}
-      {loggedIn ? <Route path="/changePassword" element={<Navigate to="/" />} /> : <Route path="/changePassword" element={<ResetPassword />} />}
-      {loggedIn ? <Route path="/recover/:email/:code" element={<Navigate to="/" />} /> :<Route path="/recover/:email/:code" element={<CheckLink />} />}
+      {username ? <Route path="/forgetPassword" element={<Navigate to="/" />} /> : <Route path="/forgot" element={<ForgotPassword />} />}
+      {username ? <Route path="/verify/:email" element={<Navigate to="/" />}  /> : <Route path="/verify/:email" element={<VerifyEmail />}  />}
+      {username ? <Route path="/changePassword" element={<Navigate to="/" />} /> : <Route path="/changePassword" element={<ResetPassword />} />}
+      {username ? <Route path="/recover/:email/:code" element={<Navigate to="/" />} /> :<Route path="/recover/:email/:code" element={<CheckLink />} />}
     </Routes>
   );
 }

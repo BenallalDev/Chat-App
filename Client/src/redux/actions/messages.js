@@ -1,17 +1,6 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import * as api from "../../api"
 
-export const GetMessages = createAsyncThunk(
-    "messages/getMessages",
-    async () => {
-        try {
-           const { data } = await api.APIgetMessages()
-           return data
-        } catch (error) {
-            throw error.response.data || "Something went wrong"
-        }
-    }
-)
 export const GetChat = createAsyncThunk(
     "messages/chat",
     async (username) => {
@@ -59,6 +48,30 @@ export const ReactToMessage = createAsyncThunk(
             const { reaction, msgDate, username } = info
             const { data } = await api.APIreact(reaction, msgDate, username)
             return data
+        } catch (error) {
+            throw error.response.data || "Something went wrong"
+        }
+    }
+)
+
+export const GetUser = createAsyncThunk(
+    'auth/getUser',
+    async (username) => {
+        try {
+            const { data } = await api.APIgetUser(username)
+            return data
+        } catch (error) {
+            throw error.response.data || "Something went wrong"
+        }
+    }
+)
+
+export const GetMessages = createAsyncThunk(
+    "messages/getMessages",
+    async () => {
+        try {
+           const { data } = await api.APIgetMessages()
+           return data
         } catch (error) {
             throw error.response.data || "Something went wrong"
         }

@@ -1,13 +1,16 @@
 import { createSlice} from '@reduxjs/toolkit'
-import { GetChat, GetMessages, ReactToMessage, SearchUser, SendMessage } from './actions/messages'
-
+import { GetChat, GetMessages, GetUser, ReactToMessage, SearchUser, SendMessage } from './actions/messages'
+import { useDispatch, useSelector } from 'react-redux'
 const initialState = {
   messages: [],
   chat: [],
   searchLoading: false,
   messagesLoading: false,
-  chatLoading: false
+  chatLoading: false,
+  chatUser: {ussername: null, profilePic: null},
+
 }
+
 
 export const messagesSlice = createSlice({
     name: 'messages',
@@ -50,9 +53,15 @@ export const messagesSlice = createSlice({
             .addCase(ReactToMessage.fulfilled, (state, action) => {
                 state.chat = action.payload
             })
-            .addCase(ReactToMessage.rejected, (state, action) => {
-                console.log(action.error)
+            .addCase(GetUser.pending, (state, action) => {
+                state.chatLoading = true
             })
+            .addCase(GetUser.fulfilled, (state, action) => {
+                state.chatUser = action.payload
+                state.chatLoading = false
+            })
+         
+            
             
     }
 })

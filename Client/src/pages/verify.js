@@ -1,4 +1,4 @@
-import { Center, Heading, Text } from '@chakra-ui/react';
+import { Center, Heading, Spinner, Text } from '@chakra-ui/react';
 import {
   Button,
   FormControl,
@@ -10,12 +10,13 @@ import {
 } from '@chakra-ui/react';
 import { PinInput, PinInputField } from '@chakra-ui/react';
 import { useState } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import { verify } from '../redux/actions/auth';
 
 export default function VerifyEmail() {
     const dispatch = useDispatch()
+    const { loading } = useSelector(state => state.auth)
     const {email} = useParams();
     const [code, setCode] = useState("")
     return (
@@ -64,13 +65,26 @@ export default function VerifyEmail() {
             </Center>
             </FormControl>
             <Stack spacing={6}>
-            <Button
-               
-                onClick={() => dispatch(verify({email, code}))}
-                colorScheme="blue"
-                >
-                Verify
-            </Button>
+            {
+                loading ? (
+                  <Button
+                    color={'white'}
+                    colorScheme="blue"
+                    isDisabled="true"
+                    >
+                    <Spinner colorScheme="white" />
+                  </Button>
+                  
+                ) : (
+                    <Button
+                        onClick={() => dispatch(verify({email, code}))}
+                        colorScheme="blue"
+                        >
+                        Verify
+                    </Button>
+                )
+              }
+            
             </Stack>
         </Stack>
         </Flex>

@@ -102,3 +102,16 @@ export const Logout = createAsyncThunk(
         }
     }
 )
+
+export const ChangeProfilePic = createAsyncThunk(
+    "auth/changePhoto",
+    async (link) => {
+        try {
+            const { data } = await api.APIchangeProfilePic(link)
+            return data
+        } catch (error) {
+            throw error.response.data
+        }
+    }
+)
+

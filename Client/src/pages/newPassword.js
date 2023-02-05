@@ -5,12 +5,16 @@ import {
     FormLabel,
     Heading,
     Input,
+    Spinner,
     Stack,
     Text,
     useColorModeValue,
   } from '@chakra-ui/react';
+import { useSelector } from 'react-redux';
   
-  export default function ResetPassword() {
+export default function ResetPassword() {
+    const { loading } = useSelector(state => state.auth)
+
     return (
       <Flex
         minH={'100vh'}
@@ -42,14 +46,28 @@ import {
             <Input type="password" />
           </FormControl>
           <Stack spacing={6}>
-            <Button
-              bg={'blue.400'}
-              color={'white'}
-              _hover={{
-                bg: 'blue.500',
-              }}>
-              Submit
-            </Button>
+          {
+                loading ? (
+                  <Button
+                    color={'white'}
+                    colorScheme="blue"
+                    isDisabled="true"
+                    >
+                    <Spinner colorScheme="white" />
+                  </Button>
+                  
+                ) : (
+                  <Button
+                    bg={'blue.400'}
+                    color={'white'}
+                    _hover={{
+                      bg: 'blue.500',
+                    }}>
+                    Submit
+                  </Button>
+                )
+            }
+            
           </Stack>
         </Stack>
       </Flex>

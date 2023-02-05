@@ -7,15 +7,17 @@ import {
     Stack,
     Text,
     useColorModeValue,
+    Spinner,
   } from '@chakra-ui/react';
 import { useState } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { sendRecoveryLink } from '../redux/actions/auth';
   
   
 export default function ForgotPasswordForm() {
   const [email, setemail] = useState("")
   const dispatch = useDispatch()
+  const { loading } = useSelector(state => state.auth)
   return (
     <Flex
       minH={'100vh'}
@@ -48,13 +50,27 @@ export default function ForgotPasswordForm() {
           />
         </FormControl>
         <Stack spacing={6}>
-          <Button
-            color={'white'}
-            onClick={() => dispatch(sendRecoveryLink({email}))}
-            colorScheme="blue"
-            >
-            Request Reset
-          </Button>
+        {
+                loading ? (
+                  <Button
+                    color={'white'}
+                    colorScheme="blue"
+                    isDisabled="true"
+                    >
+                    <Spinner colorScheme="white" />
+                  </Button>
+                  
+                ) : (
+                  <Button
+                    color={'white'}
+                    onClick={() => dispatch(sendRecoveryLink({email}))}
+                    colorScheme="blue"
+                    >
+                    Request Reset
+                  </Button>
+                )
+              }
+          
         </Stack>
       </Stack>
     </Flex>

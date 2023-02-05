@@ -7,6 +7,10 @@ const UserSchema = Schema({
         required: true,
         unique: true,
     },
+    profilePic: {
+        type:String,
+        default: "/assets/default.png"
+    },
     email: {
         type:String,
         required: true,

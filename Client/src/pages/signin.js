@@ -8,15 +8,17 @@ import {
   Button,
   Text,
   useColorModeValue,
+  Spinner,
 } from '@chakra-ui/react';
 import { useState } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import {Link } from "react-router-dom"
 import { signIn} from '../redux/actions/auth';
 export default function Signin() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const dispatch = useDispatch()
+  const { loading } = useSelector(state => state.auth)
 
 
   return (
@@ -51,14 +53,29 @@ export default function Signin() {
                 align={'start'}
                 justify={'space-between'}>
                 <Text to="/forgot" as={Link} color={'blue.400'}>Forgot password?</Text>
+                <Text to="/signup" as={Link} color={'blue.400'}>Sign Up</Text>
               </Stack>
-              <Button
-                color={'white'}
-                onClick={() => dispatch(signIn({email, password}))}
-                colorScheme="blue"
-                >
-                Sign in
-              </Button>
+              
+              {
+                loading ? (
+                  <Button
+                    color={'white'}
+                    colorScheme="blue"
+                    isDisabled="true"
+                    >
+                    <Spinner colorScheme="white" />
+                  </Button>
+                  
+                ) : (
+                  <Button
+                    color={'white'}
+                    onClick={() => dispatch(signIn({email, password}))}
+                    colorScheme="blue"
+                    >
+                    Sign in
+                  </Button>
+                )
+              }
             </Stack>
           </Stack>
         </Box>

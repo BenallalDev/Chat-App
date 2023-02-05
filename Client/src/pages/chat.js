@@ -5,7 +5,7 @@ import { Link, useParams } from "react-router-dom"
 import { MdSend } from "react-icons/md"
 import ChatLoading from '../Components/ChatLoading'
 import { useDispatch, useSelector } from 'react-redux'
-import { GetChat} from '../redux/actions/messages'
+import { GetChat, GetUser} from '../redux/actions/messages'
 import { SendMessage} from "../redux/actions/messages"
 import { socket } from "../socket.io"
 import { recieve_message } from '../redux/messages'
@@ -14,7 +14,7 @@ import { useMediaQuery } from '@chakra-ui/react'
 
 const Chat = () => {
     const { username } = useParams()
-    const { chatLoading, chat, room } = useSelector(state => state.messages)
+    const { chatLoading, chat, room, chatUser } = useSelector(state => state.messages)
     const [newChat, setnewChat] = useState([])
     const [message, setMessage] = useState("")
     const [senderTyping, setSenderTyping] = useState(false)
@@ -28,6 +28,7 @@ const Chat = () => {
     }, [newChat, chatRef]);
     useEffect(() => {
         dispatch(GetChat(username))
+        dispatch(GetUser(username))
         socket.on("new-message", message => {
             if(typeof message === 'string'){
                 dispatch(recieve_message(message))
@@ -143,8 +144,8 @@ const Chat = () => {
                 ) : (
                     <Card w="100%" maxH="100%" boxShadow="base">
                         <CardHeader as={Flex} alignItems="center" borderBottom="1px solid #dedede" py=".8rem">
-                            <Image borderRadius="50%" src="https://images.pexels.com/photos/8199679/pexels-photo-8199679.jpeg?auto=compress&cs=tinysrgb&w=1600" w="50px" h="50px" mx=".5rem" />
-                            <Text>{username}</Text>
+                            <Image borderRadius="50%" src={chatUser.profilePic || "/assets/default.png"} w="50px" h="50px" mx=".5rem" />
+                            <Text>{chatUser.username}</Text>
                             {
                                 senderTyping ? <Text mx="1rem" p=".5rem 1rem" fontWeight="bold" color="blackAlpha.500" bg="blackAlpha.50">Typing...</Text> : null
                             }
@@ -154,7 +155,7 @@ const Chat = () => {
                                 newChat.map((e, index) => (
                                     e.sender === "him" ? (
                                         <Flex key={index} gap="1rem" alignItems="flex-start">
-                                            <Image src="https://images.pexels.com/photos/8199679/pexels-photo-8199679.jpeg?auto=compress&cs=tinysrgb&w=1600" w="40px" h="40px" borderRadius="50%" />
+                                            <Image src={chatUser.profilePic || "/assets/default.png"} w="40px" h="40px" borderRadius="50%" />
                                             <Flex w="100%" flexDirection="column" gap="1rem">
                                                 {
                                                     e.messages?.map((message, ix) => (

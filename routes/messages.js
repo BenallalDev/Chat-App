@@ -60,7 +60,15 @@ router.get("/messages", login, async(req, res) => {
         }
         const decoded = jwt.verify(token, process.env.JWT_KEY)
         const user = await User.findById(decoded.id)
-        res.status(200).json(user.messages)
+        const messages = await Promise.all(
+            user.messages.map(async (e) => {
+              const chatter = await User.findOne({
+                username: e.member1 === user.username ? e.member2 : e.member1,
+              });
+              return { ...e, picture: chatter.profilePic };
+            })
+        );
+        res.status(200).json(messages);
     } catch (error) {
         res.status(500).json("Something went wrong")
     }

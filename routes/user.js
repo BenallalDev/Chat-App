@@ -3,6 +3,7 @@ import jwt from "jsonwebtoken"
 import nodemailer from "nodemailer"
 import bcrypt from "bcrypt"
 import User from "../models/user.js"
+import login from "../middleware/index.js"
 import { v4 as uuidv4 } from 'uuid';
 
 const router = Router()
@@ -15,7 +16,7 @@ router.get("/signin", async(req, res) => {
         }
         const decoded = jwt.verify(token, process.env.JWT_KEY)
         const user = await User.findById(decoded.id)
-        res.status(200).json(user.username)
+        res.status(200).json({username: user.username, profilePic: user.profilePic})
         return;
     } catch(error) {
         res.status(501).json('Something went wrong')
@@ -109,7 +110,7 @@ router.post("/signin", async(req, res) => {
             return;
         }
         const token = await jwt.sign({id: user.id}, process.env.JWT_KEY)
-        res.cookie(process.env.COOKIE_NAME, token, {httpOnly: true, maxAge:(60 * 100 * 60 * 60)}).json({username:user.username})
+        res.cookie(process.env.COOKIE_NAME, token, {httpOnly: true, maxAge:(60 * 100 * 60 * 60)}).json({username:user.username, profilePic: user.profilePic})
     } catch (error) {
         res.status(500).json("Something went wrong")
     }
@@ -185,7 +186,7 @@ router.post("/changepassword", async(req, res) => {
 })
 
 
-router.get('/newfriend/:username', async(req, res) => {
+router.get('/newfriend/:username', login, async(req, res) => {
     try {
         const username = req.params.username
         const user = await User.findOne({username})
@@ -196,6 +197,23 @@ router.get('/newfriend/:username', async(req, res) => {
     
 })
 
+router.post("/change_profile_pic",login, async(req, res) => {
+    try {
+        const { profilePic } = req.body
+        const token = req.cookies[process.env.COOKIE_NAME]
+        const decoded = jwt.verify(token, process.env.JWT_KEY)
+        const user = await User.findById(decoded.id)
+        if(!profilePic){
+            res.status(401).json("Invalid profile pic")
+            return;
+        }
+        user.profilePic = profilePic
+        await user.save()
+        res.status(200).json(profilePic)
+    } catch (error) {
+        res.status(500).json("Something went wrong")
+    }
+})
 router.get("/logout", (req, res) => {
     try {
         res.clearCookie(process.env.COOKIE_NAME).status(200).json("Logout")
@@ -203,4 +221,16 @@ router.get("/logout", (req, res) => {
         res.status(500).json("Something went wrong")
     }
 })
+
+router.get("/user/:username",login, async(req, res) => {
+    try {
+        const { username } = req.params
+        const user = await User.findOne({username})
+        res.status(200).json({username: user.username, profilePic: user.profilePic})
+    } catch (error) {
+        res.status(500).json("Something went wrong")
+    }
+})
+
+
 export default router

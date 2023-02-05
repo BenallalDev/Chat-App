@@ -2,13 +2,14 @@ import { createSlice} from '@reduxjs/toolkit'
 import Swal from 'sweetalert2'
 
 
-import {signIn,verify,signUp, sendRecoveryLink, checkRecoveryLink, changePassword, CheckLogin, Logout} from "./actions/auth"
+import {signIn,verify,signUp, sendRecoveryLink, checkRecoveryLink, changePassword, CheckLogin, Logout, ChangeProfilePic} from "./actions/auth"
 
 
 const initialState = {
   loggedIn: true,
   username: null,
   loading: false,
+  profilePic: null
 }
 
 export const authSlice = createSlice({
@@ -18,13 +19,15 @@ export const authSlice = createSlice({
         builder
         .addCase(CheckLogin.fulfilled, (state, action) => {
             state.loading = false
-            state.username = action.payload
+            state.username = action.payload.username
+            state.profilePic = action.payload.profilePic
             state.loggedIn = true
         })
         .addCase(CheckLogin.rejected, (state, action) => {
             state.loading = false
             state.username = null
             state.loggedIn = false
+            console.log(action.error)
         })
         .addCase(CheckLogin.pending, (state, action) => {
             state.loading = false
@@ -32,8 +35,8 @@ export const authSlice = createSlice({
         .addCase(signIn.fulfilled, (state, action) => {
             state.loading = false
             state.username = action.payload.username
+            state.profilePic = action.payload.profilePic
             state.loggedIn = true
-            state.role = action.payload.role
         })
         .addCase(signIn.pending, (state, action) => {
             state.loading = true
@@ -134,6 +137,12 @@ export const authSlice = createSlice({
             state.loggedIn = false
             state.loading = false
         })
+
+        .addCase(ChangeProfilePic.fulfilled, (state, action) => {
+            state.profilePic = action.payload
+        })
+
+        
         
     }
 })

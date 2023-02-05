@@ -11,9 +11,10 @@ import {
   Heading,
   Text,
   useColorModeValue,
+  Spinner,
 } from '@chakra-ui/react';
 import {useState} from "react"
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import {Link} from "react-router-dom" 
 import { signUp } from '../redux/actions/auth';
 export default function Signup() {
@@ -21,7 +22,10 @@ export default function Signup() {
   const [username, setusername] = useState("")
   const [password, setpassword] = useState("")
   const dispatch = useDispatch();
+  const { loading } = useSelector(state => state.auth)
+
   return (
+    
     <Flex
     minH="100vh"
       align={'center'}
@@ -56,12 +60,26 @@ export default function Signup() {
                 justify={'space-between'}>
                 <Text to="/" as={Link} color={'blue.400'}>Already have an account?</Text >
               </Stack>
-              <Button
-                onClick={() => dispatch(signUp({email, username, password}))}
-                colorScheme="blue"
-                >
-                Sign up
-              </Button>
+              
+              {
+                loading ? (
+                  <Button
+                    color={'white'}
+                    colorScheme="blue"
+                    isDisabled="true"
+                    >
+                    <Spinner colorScheme="white" />
+                  </Button>
+                  
+                ) : (
+                  <Button
+                    onClick={() => dispatch(signUp({email, username, password}))}
+                    colorScheme="blue"
+                    >
+                    Sign up
+                  </Button>
+                )
+              }
             </Stack>
           </Stack>
         </Box>
