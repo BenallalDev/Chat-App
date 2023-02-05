@@ -14,7 +14,7 @@ const PORT = process.env.PORT || 5050
 const app = express(); 
 const server = createServer(app); 
 const io = new Server(server, {
-	cors: "http://localhost:3000/",
+	cors: "",
 	methods: ["GET", "POST"]
 });
 
