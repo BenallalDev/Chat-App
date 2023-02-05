@@ -14,7 +14,7 @@ const PORT = process.env.PORT || 5050
 const app = express(); 
 const server = createServer(app); 
 const io = new Server(server, {
-	cors: "https://chat-app-nu-six.vercel.app/",
+	cors: process.env.DOMAIN,
 	methods: ["GET", "POST"]
 });
 
