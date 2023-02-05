@@ -13,10 +13,7 @@ dotenv.config()
 const PORT = process.env.PORT || 5050
 const app = express(); 
 const server = createServer(app); 
-const io = new Server(server, {
-	cors: process.env.DOMAIN,
-	methods: ["GET", "POST"]
-});
+const io = new Server(server);
 
 const limiter = rateLimit({
 	windowMs: 60 * 1000, 
