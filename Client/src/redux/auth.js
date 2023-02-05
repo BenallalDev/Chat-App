@@ -27,7 +27,6 @@ export const authSlice = createSlice({
             state.loading = false
             state.username = null
             state.loggedIn = false
-            console.log(action.error)
         })
         .addCase(CheckLogin.pending, (state, action) => {
             state.loading = false

@@ -70,7 +70,7 @@ export default function VerifyEmail() {
                   <Button
                     color={'white'}
                     colorScheme="blue"
-                    isDisabled="true"
+                    isDisabled={true}
                     >
                     <Spinner colorScheme="white" />
                   </Button>

@@ -6,8 +6,9 @@ import mongoose from "mongoose";
 import user from "./routes/user.js"
 import cookieParser from "cookie-parser";
 import messages from "./routes/messages.js"
-
-
+import cors from "cors"
+import rateLimit from "express-rate-limit"
+import path from "path"
 dotenv.config()
 const PORT = process.env.PORT || 5050
 const app = express(); 
@@ -17,13 +18,30 @@ const io = new Server(server, {
 	methods: ["GET", "POST"]
 });
 
-
+const limiter = rateLimit({
+	windowMs: 60 * 1000, 
+	max: 100, 
+	standardHeaders: true, 
+	legacyHeaders: false, 
+})
+app.use(express.static(path.resolve(process.cwd(), "Client", "build")));
+app.use(limiter)
+app.use(cors())
 app.use(express.json())
 app.use(cookieParser())
 app.use("/api/", user)
 app.use("/api/", messages)
 
-
+app.get("*", (_, res) => {
+	res.sendFile(
+		path.join(process.cwd(), "./Client/build/index.html"),
+		(err) => {
+			if(err) {
+				res.status(500).send(err)
+			}
+		}
+	)
+})
 io.on("connection", socket => { 
 	socket.on('join-room', room => {
 		socket.join(room)

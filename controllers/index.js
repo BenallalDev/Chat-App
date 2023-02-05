@@ -121,8 +121,6 @@ export const reactToMessage = async (reaction, messageDate, reacterID, username)
             if(conversation.member1 === reacterUser.username && conversation.member2 === username || conversation.member1 === username && conversation.member2 === reacterUser.username) return true
         }).chat
     } catch (error) {
-        console.log(error)
-
         return false
     }
 }

@@ -18,12 +18,10 @@ export const SendMessage = createAsyncThunk(
     async (info) => {
         try {
             const { username, message } = info
-            console.log(username, message)
             const { data } = await api.APIsendMessage(username, message)
             
             return data
         } catch (error) {
-            console.log(error)
             throw error.response.data || "Something went wrong"
         }
     }

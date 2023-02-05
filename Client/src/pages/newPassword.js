@@ -51,7 +51,7 @@ export default function ResetPassword() {
                   <Button
                     color={'white'}
                     colorScheme="blue"
-                    isDisabled="true"
+                    isDisabled={true}
                     >
                     <Spinner colorScheme="white" />
                   </Button>
