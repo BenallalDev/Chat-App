@@ -13,7 +13,10 @@ dotenv.config()
 const PORT = process.env.PORT || 5050
 const app = express(); 
 const server = createServer(app); 
-const io = new Server(server);
+const io = new Server(server, {
+	cors: "https://chat-app-nu-six.vercel.app/",
+	methods: ["GET", "POST"]
+});
 
 const limiter = rateLimit({
 	windowMs: 60 * 1000, 
