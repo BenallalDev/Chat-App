@@ -34,15 +34,15 @@ const Messages = () => {
                         </Box>
                         <Flex mx="2rem" flexDirection="column" justifyContent="flex-start">
                             <Text color="blue.400" fontWeight="semibold" >{e.member1 === username ? e.member2 : e.member1}</Text>
-                            <Text fontSize=".8rem" color="blackAlpha.800" fontWeight="bold">
+                            <Text fontSize=".8rem" color={e.unseenMessages && e.unseenMessages.length > 0 ? "red.400" : "blackAlpha.800"} fontWeight="bold">
                                 {
-                                    e.unseenMessages ? e.unseenMessages[e.unseenMessages.length - 1] : (e.chat[e.chat.length - 1].him  ? e.chat[e.chat.length - 1].him  : e.chat[e.chat.length - 1].me)
+                                    e.unseenMessages && e.unseenMessages.length > 0 ? e.unseenMessages[e.unseenMessages.length - 1] : (e.chat[e.chat.length - 1].him  ? e.chat[e.chat.length - 1].him  : e.chat[e.chat.length - 1].me)
                                 }
                             </Text>
                         </Flex>
                         {
                             !e.unseenMessages || e.unseenMessages.length === 0 ? null : (
-                                <Box borderRadius="50%" as={Flex} alignItems="center" justifyContent="center" position="absolute" right=".5rem" w="30px" h="30px" bg="blue.500" color="white" fontWeight="bold">
+                                <Box borderRadius="50%" as={Flex} alignItems="center" justifyContent="center" position="absolute" right=".5rem" w="30px" h="30px" bg="red.500" color="white" fontWeight="bold">
                                     {e.unseenMessages.length}
                                 </Box>
                             )

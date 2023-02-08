@@ -15,15 +15,18 @@ export const SendMessage = async(senderID, reciever, message, room) => {
             if(conversation.member1 === sender && conversation.member2 === reciever || conversation.member1 === reciever && conversation.member2 === sender) return true
         })
         if(recieverConversation && senderConversation){
+            const date = new Date();
+            const unseen = recieverConversation.unseenMessages || [];
             recieverConversation = {
                 ...recieverConversation,
                 chat: [
                     ...recieverConversation.chat,
                     {
                         him: message,
-                        date: new Date(),
+                        date: date,
                     }
-                ]
+                ],
+                unseenMessages: [...unseen, message]
             }
             senderConversation = {
                 ...senderConversation,
@@ -31,7 +34,7 @@ export const SendMessage = async(senderID, reciever, message, room) => {
                     ...senderConversation.chat,
                     {
                         me: message,
-                        date: new Date(),
+                        date: date,
                     }
                 ]
             }
@@ -50,14 +53,16 @@ export const SendMessage = async(senderID, reciever, message, room) => {
             return senderUser.messages.find((conversation) => conversation.member1 === sender && conversation.member2 === reciever || conversation.member1 === reciever && conversation.member2 === sender)
         }
         else{ 
+            const date = new Date();
             let newRecieverConversation =  {
                 room: room,
                 member1: reciever,
                 member2: sender,
                 chat: [{
                     him: message,
-                    date: new Date(),
-                }]
+                    date: date,
+                }],
+                unseenMessages: [message]
             }
             let newSenderConversation = {
                 room: room,
@@ -65,7 +70,7 @@ export const SendMessage = async(senderID, reciever, message, room) => {
                 member2: sender,
                 chat: [{
                     me: message,
-                    date: new Date(),
+                    date: date,
                 }]
             }
             recieverMessages.push(newRecieverConversation);
@@ -77,7 +82,9 @@ export const SendMessage = async(senderID, reciever, message, room) => {
             return senderUser.messages.find((conversation) => conversation.member1 === sender && conversation.member2 === reciever || conversation.member1 === reciever && conversation.member2 === sender)
         }
     } catch (error) {
+        console.log(error)
         return false
+        
     }
 }
 

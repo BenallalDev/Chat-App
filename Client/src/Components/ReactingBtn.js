@@ -4,8 +4,9 @@ import React, { useState } from 'react'
 import Swal from 'sweetalert2'
 import { useDispatch } from 'react-redux'
 import { ReactToMessage } from '../redux/actions/messages'
+import { socket } from '../socket.io'
 
-const Reacting = ({msgDate, username}) => {
+const Reacting = ({msgDate, username, room}) => {
   const { isOpen, onOpen, onClose } = useDisclosure()
   const dispatch = useDispatch()
   const [reactionChosen, setreactionChosen] = useState("")
@@ -17,6 +18,11 @@ const Reacting = ({msgDate, username}) => {
     if(reactions.includes(reaction)) {
       setreactionChosen(reaction)
       dispatch(ReactToMessage({reaction, msgDate, username}))
+        .then(res => {
+          if(res.type === "messages/react/fulfilled"){
+            socket.emit("react", room, reaction, msgDate)
+          }
+        })
       onClose()
       
     }

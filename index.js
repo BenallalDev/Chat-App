@@ -13,7 +13,9 @@ dotenv.config()
 const PORT = process.env.PORT || 5050
 const app = express(); 
 const server = createServer(app); 
-const io = new Server(server);
+const io = new Server(server, {
+	cors: ""
+});
 
 const limiter = rateLimit({
 	windowMs: 60 * 1000, 
@@ -21,6 +23,8 @@ const limiter = rateLimit({
 	standardHeaders: true, 
 	legacyHeaders: false, 
 })
+
+app.use(cors())
 app.use(express.static(path.resolve(process.cwd(), "Client", "build")));
 app.use(limiter)
 app.use(express.json())
@@ -50,6 +54,9 @@ io.on("connection", socket => {
 	})
 	socket.on("stop-typing", room => {
 		socket.to(room).emit("sender-stop-typing")
+	})
+	socket.on("react", (room, reaction, msgDate) => {
+		socket.to(room).emit("reacted", msgDate, reaction)
 	})
 		
 });

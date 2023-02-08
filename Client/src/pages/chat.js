@@ -8,7 +8,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { GetChat, GetUser} from '../redux/actions/messages'
 import { SendMessage} from "../redux/actions/messages"
 import { socket } from "../socket.io"
-import { recieve_message } from '../redux/messages'
+import { recieve_message, recieve_reaction } from '../redux/messages'
 import Reacting from '../Components/ReactingBtn' 
 import { useMediaQuery } from '@chakra-ui/react'
 
@@ -39,9 +39,11 @@ const Chat = () => {
 
         })
         socket.on("sender-stop-typing", () => {
-            setSenderTyping(false)
-            
+            setSenderTyping(false) 
         })
+        socket.on("reacted", (msgDate, reaction) => {
+            dispatch(recieve_reaction({date:msgDate, reaction}))
+        }) 
     }, [])
     useEffect(() => {
         socket.emit("join-room", room)
@@ -112,6 +114,8 @@ const Chat = () => {
             send_message()
         }
     }
+
+    
     
     const options = {
         day: '2-digit',
@@ -168,7 +172,7 @@ const Chat = () => {
                                                                     </Text>
                                                                     <Text  fontWeight="bold" color="grey" my=".3rem" fontSize=".8rem">{f.format(new Date(message.date))}</Text>
                                                                 </Flex>
-                                                                <Reacting msgDate={new Date(message.date).toISOString()} username={username} />
+                                                                <Reacting room={room} msgDate={new Date(message.date).toISOString()} username={username} />
                                                             </Flex> 
 
                                                             

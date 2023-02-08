@@ -45,8 +45,14 @@ router.get('/chat/:username', login, async (req, res) => {
         const found = await messages.find((conversation) => {
             if(conversation.member1 === user.username && conversation.member2 === username || conversation.member1 === username && conversation.member2 === user.username) return true
         })
+        user.messages = user.messages.map(e => {
+            if(e.room === found.room) return {...e, unseenMessages: []}
+            return e
+        })
+        await user.save()
         res.status(200).json({chat: found.chat, room: found.room})
     } catch (error) {
+        console.log(error)
         res.status(500).json("Something went wrong")
     } 
 })

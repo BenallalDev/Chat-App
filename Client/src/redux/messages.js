@@ -17,7 +17,14 @@ export const messagesSlice = createSlice({
     initialState,
     reducers: {
         recieve_message: (state, action) => {
-            state.chat = [...state.chat, {him: action.payload, date: new Date().toString()}]
+            state.chat = [...state.chat, {him: action.payload, date: new Date().toISOString()}]
+        },
+        recieve_reaction: (state, action) => {
+            const {date, reaction} = action.payload
+            state.chat = state.chat.map(e => {
+                if(e.date === new Date(date).toISOString()) return {...e, reaction: reaction}
+                return e
+            })
         }
     },
     extraReducers: builder => {
@@ -65,7 +72,7 @@ export const messagesSlice = createSlice({
             
     }
 })
-export const { recieve_message } = messagesSlice.actions
+export const { recieve_message, recieve_reaction } = messagesSlice.actions
 
 
 export default messagesSlice.reducer
