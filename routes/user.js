@@ -16,6 +16,9 @@ router.get("/signin", async(req, res) => {
         }
         const decoded = jwt.verify(token, process.env.JWT_KEY)
         const user = await User.findById(decoded.id)
+        if(!user.confirmed){
+            res.status(401).json("Account is not verefied")
+        }
         res.status(200).json({username: user.username, profilePic: user.profilePic})
         return;
     } catch(error) {
@@ -104,14 +107,23 @@ router.post("/signin", async(req, res) => {
             return;
         }
         const user = await User.findOne({email})
+        if(!user){
+            res.status(404).json("Invalid Email")
+            return;
+        }
         const isMatch = await bcrypt.compare(password, user.password)
         if(!isMatch){
             res.status(401).json("Incorrect Password")
             return;
         }
+        if(!user.confirmed){
+            res.status(401).json("Please confirm your account first")
+            return;
+        }
         const token = await jwt.sign({id: user.id}, process.env.JWT_KEY)
         res.cookie(process.env.COOKIE_NAME, token, {httpOnly: true, maxAge:(60 * 100 * 60 * 60)}).json({username:user.username, profilePic: user.profilePic})
     } catch (error) {
+        console.log(error)
         res.status(500).json("Something went wrong")
     }
 })

@@ -11,6 +11,10 @@ const login = async(req, res, next) => {
         }
         const decoded = await jwt.verify(token, process.env.JWT_KEY)
         const user = await User.findById(decoded.id)
+        if(!user.confirmed){
+            res.status(401).json("Please confirm your account first")
+            return;
+        }
         next()
     } catch (error) {
         res.status(500).json("Invalid auth")

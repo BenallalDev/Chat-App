@@ -24,7 +24,7 @@ function App() {
       {loggedIn ? <Route path="/signup" element={<Navigate to="/" />} /> : <Route path="/signUp" element={<Signup />} />}
       {username ? <Route path="/forgot" element={<Navigate to="/" />} /> : <Route path="/forgot" element={<ForgotPassword />} />}
       {username ? <Route path="/verify/:email" element={<Navigate to="/" />}  /> : <Route path="/verify/:email" element={<VerifyEmail />}  />}
-      {username ? <Route path="/changePassword" element={<Navigate to="/" />} /> : <Route path="/changePassword" element={<ResetPassword />} />}
+      {username ? <Route path="/changepassword/:email/:code" element={<Navigate to="/" />} /> : <Route path="/changepassword/:email/:code" element={<ResetPassword />} />}
       {username ? <Route path="/recover/:email/:code" element={<Navigate to="/" />} /> :<Route path="/recover/:email/:code" element={<CheckLink />} />}
     </Routes>
   );
